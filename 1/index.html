@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Belajar React</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+    <!-- Don't use this in production: -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const container = document.getElementById('root');
+        const root = ReactDOM.createRoot(container);
+
+        function Header({name}){
+          return(<h1>Belajar React {name ? name : 'Arsalan'}🎂</h1>);
+        }
+        
+        function AngkaPrint({nomer}){
+          if (nomer > 10 || nomer<0){
+            return (<h3>Done</h3>);
+          }else {
+            return (<h3>{(nomer)}</h3>);
+          }
+        }
+        
+        function HomePage(){
+
+          const students = ['Arsalan','Rifqi','Marco'];
+          const [likes, setLikes] = React.useState(0);
+          
+          const buttons = ['-','Reset','+'];
+          const [angka, setAngka] = React.useState(0);
+
+          function handleClick(){
+            setLikes(likes+1);
+          }
+
+          function handleCounter(button){
+            switch (button) {
+              case '+':
+                setAngka(angka => (angka < 10 ? angka + 1 : angka=12)); // maks 10
+                break;
+              case '-':
+                setAngka(angka => (angka > 0 ? angka - 1 : angka=12)); // min 0
+                break;
+              default:
+                setAngka(0);
+            }
+          }
+
+          return (
+            <>
+              <Header />
+              <Header name="Rifqi"/>
+              <ul>
+                  {
+                    students.map((student)=> (
+                      <li key={student}>
+                        {student}
+                      </li>
+                    ))
+                  }
+              </ul>
+              <button onClick={handleClick}>Like ({likes})</button>
+              <h2>Latihan</h2>
+              <AngkaPrint nomer={angka} />
+              {
+                buttons.map((button)=> (
+                  <button key={button} onClick={() => handleCounter(button)}>
+                    {button}</button>
+                ))
+              }
+            </>
+          );
+        }
+        root.render(<HomePage/>);
+    </script>
+    <!--
+      Note: this page is a great way to try React but it's not suitable for production.
+      It slowly compiles JSX with Babel in the browser and uses a large development build of React.
+
+      Read this page for starting a new React project with JSX:
+      https://react.dev/learn/start-a-new-react-project
+
+      Read this page for adding React with JSX to an existing project:
+      https://react.dev/learn/add-react-to-an-existing-project
+    -->
+  </body>
+</html>
