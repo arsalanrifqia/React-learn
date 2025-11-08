@@ -1,35 +1,50 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import Header from "./Component/Header.jsx";
+import AngkaPrint from "./Component/AngkaPrint.jsx";
 
-function App() { 
-  const [count, setCount] = useState(0)
+function App() {
+  const students = ["Arsalan", "Rifqi", "Marco"];
+  const [likes, setLikes] = useState(0);
+
+  const buttons = ["-", "Reset", "+"];
+  const [angka, setAngka] = useState(0);
+
+  function handleClick() {
+    setLikes(likes + 1);
+  }
+
+  function handleCounter(button) {
+    switch (button) {
+      case "+":
+        setAngka((angka) => (angka < 10 ? angka + 1 : (angka = 12))); // maks 10
+        break;
+      case "-":
+        setAngka((angka) => (angka > 0 ? angka - 1 : (angka = 12))); // min 0
+        break;
+      default:
+        setAngka(0);
+    }
+  }
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+      <Header />
+      <Header name="Rifqi" />
+      <ul>
+        {students.map((student) => (
+          <li key={student}>{student}</li>
+        ))}
+      </ul>
+      <button onClick={handleClick}>Like ({likes})</button>
+      <h2>Latihan</h2>
+      <AngkaPrint nomer={angka} />
+      {buttons.map((button) => (
+        <button key={button} onClick={() => handleCounter(button)}>
+          {button}
         </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      ))}
     </>
-  )
+  );
 }
 
-export default App
+export default App;
