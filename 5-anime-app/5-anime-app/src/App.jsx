@@ -41,19 +41,20 @@ const animesData = [
 ];
 
 export default function App() {
+  const [page, setPage] = useState(1);
   const [animes, setAnimes] = useState(animesData);
-  const [selectedAnime, setSelectedAnime] = useState(animes[0]);
+  const [selectedAnime, setSelectedAnime] = useState(animesData[0]);
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
     async function getAnime() {
       try {
-        const response = await fetch("https://api.jikan.moe/v4/top/anime");
+        const response = await fetch(`https://api.jikan.moe/v4/top/anime?page=${page}`);
 
         if (!response.ok) throw new Error("Gagal mengambil data");
 
         const result = await response.json();
 
-        // misalnya hasil API dari Jikan
         const data = result.data.map((anime) => ({
           mal_id: anime.mal_id,
           title: anime.title,
@@ -75,29 +76,65 @@ export default function App() {
     }
 
     getAnime();
-  }, []);
+  }, [page]);
+
+  const filteredAnimes = animes.filter((anime) =>
+    anime.title.toLowerCase().includes(query.toLowerCase())
+  );
+
+  useEffect(() => {
+    if (
+      filteredAnimes.length > 0 &&
+      !filteredAnimes.some((anime) => anime.mal_id === selectedAnime?.mal_id)
+    ) {
+      setSelectedAnime(filteredAnimes[0]);
+    }
+  }, [filteredAnimes, selectedAnime]);
 
   function handleSelectedAnime(id) {
-    const newAnime = animes.filter((anime) => anime.mal_id === id);
-    setSelectedAnime(newAnime[0]);
+    const newAnime = animes.find((anime) => anime.mal_id === id);
+    setSelectedAnime(newAnime);
+  }
+
+  function handlePrevPage() {
+    setPage((prev) => Math.max(1, prev - 1));
+  }
+
+  function handleNextPage() {
+    setPage((prev) => prev + 1);
   }
 
   return (
     <>
       <Navbar>
-        <Search>
-          <NumResult animes={animes} />
+        <Search query={query} onQueryChange={setQuery}>
+          <NumResult animes={filteredAnimes} />
+          <PageControls page={page} onPrevPage={handlePrevPage} onNextPage={handleNextPage} />
         </Search>
       </Navbar>
       <Main>
         <Box>
-          <AnimeList animes={animes} onSelectedAnime={handleSelectedAnime} />
+          <AnimeList animes={filteredAnimes} onSelectedAnime={handleSelectedAnime} />
         </Box>
         <Box>
           <AnimeDetails selectedAnime={selectedAnime} />
         </Box>
       </Main>
     </>
+  );
+}
+
+function PageControls({ page, onPrevPage, onNextPage }) {
+  return (
+    <div className="page-controls">
+      <button className="btn-page" onClick={onPrevPage} disabled={page === 1}>
+        Previous
+      </button>
+      <span>Page {page}</span>
+      <button className="btn-page" onClick={onNextPage}>
+        Next
+      </button>
+    </div>
   );
 }
 
@@ -120,12 +157,16 @@ function Logo() {
   );
 }
 
-function Search({ children }) {
-  const [query, setQuery] = useState("");
-
+function Search({ query, onQueryChange, children }) {
   return (
     <div className="search-container">
-      <input className="search" type="text" placeholder="Search anime..." value={query} onChange={(e) => setQuery(e.target.value)} />
+      <input
+        className="search"
+        type="text"
+        placeholder="Search anime..."
+        value={query}
+        onChange={(e) => onQueryChange(e.target.value)}
+      />
       {children}
     </div>
   );
